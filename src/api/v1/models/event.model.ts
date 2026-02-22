@@ -1,9 +1,15 @@
 export interface Event {
   id?: string;
+
   name: string;
-  date: string;      
+  date: string;
   location: string;
+
+  category: string;              
   capacity: number;
-  status?: "active" | "completed" | "cancelled";
+  registrationCount: number;    
+
+  status: "active" | "completed" | "cancelled";
+
   createdAt?: string;
 }
