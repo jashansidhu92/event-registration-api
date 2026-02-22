@@ -12,6 +12,10 @@ jest.mock("../config/firebaseConfig", () => ({
   },
 }));
 
+beforeAll(() => {
+  jest.clearAllMocks();
+});
+
 afterEach(() => {
   jest.clearAllMocks();
 });
