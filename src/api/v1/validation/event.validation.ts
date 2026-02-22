@@ -7,7 +7,7 @@ export const createEventSchema = Joi.object({
 
   capacity: Joi.number().integer().min(5).required(),
 
-  status: Joi.string().valid("active", "completed", "cancelled").required(),
+  status: Joi.string().valid("active", "completed", "cancelled").default("active"),
 
   category: Joi.string().valid("conference", "workshop", "meetup", "seminar", "general").default("general"),
 
