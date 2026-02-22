@@ -8,7 +8,7 @@ describe("Event Service", () => {
       date: "2026-01-01",
       location: "Winnipeg",
       capacity: 10,
-      status: "draft",
+      status: "active",
     };
 
     const created = await createEventService(event);
