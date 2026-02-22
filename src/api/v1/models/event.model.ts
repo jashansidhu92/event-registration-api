@@ -4,6 +4,6 @@ export interface Event {
   date: string;      
   location: string;
   capacity: number;
-  status?: "draft" | "published" | "cancelled";
+  status?: "active" | "completed" | "cancelled";
   createdAt?: string;
 }
