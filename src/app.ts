@@ -5,8 +5,8 @@ export const app = express();
 
 app.use(express.json());
 
-app.get("/health", (req: Request, res: Response) => {
-  res.status(200).json({ status: "ok" });
+app.use((req, res) => {
+  res.status(HTTP_STATUS.NOT_FOUND).json({ message: "Route not found" });
 });
 
 app.use("/api/v1", v1Router);
