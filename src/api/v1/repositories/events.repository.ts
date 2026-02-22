@@ -1,5 +1,6 @@
-import { db } from "../../../../config/firebaseConfig";
+import { db } from "../../../config/firebaseConfig";
 import { Event } from "../models/event.model";
+import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 const collectionName = "events";
 
@@ -10,7 +11,10 @@ export const createEventRepo = async (data: Omit<Event, "id">): Promise<Event> =
 
 export const getAllEventsRepo = async (): Promise<Event[]> => {
   const snapshot = await db.collection(collectionName).get();
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Event, "id">) }));
+  return snapshot.docs.map((doc: QueryDocumentSnapshot) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<Event, "id">),
+  }));
 };
 
 export const getEventByIdRepo = async (id: string): Promise<Event | null> => {
@@ -29,7 +33,6 @@ export const updateEventRepo = async (
 
   await docRef.update(data);
   const updatedDoc = await docRef.get();
-
   return { id: updatedDoc.id, ...(updatedDoc.data() as Omit<Event, "id">) };
 };
 
