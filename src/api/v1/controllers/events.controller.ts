@@ -36,7 +36,7 @@ export const createEvent = (req: Request, res: Response) => {
 };
 
 export const getAllEvents = (_req: Request, res: Response) => {
-  return res.status(200).json({
+  return res.status(HTTP_STATUS.OK).json({
     count: events.length,
     data: events,
   });
