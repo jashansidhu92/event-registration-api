@@ -1,74 +1,92 @@
 import { Request, Response } from "express";
-import {
-  createEventService,
-  getAllEventsService,
-  getEventByIdService,
-  updateEventService,
-  deleteEventService,
-} from "../services/events.service";
-import { Event } from "../models/event.model";
 
-export const createEvent = async (req: Request, res: Response) => {
-  try {
-    const payload: Omit<Event, "id"> = {
-      ...req.body,
-      createdAt: new Date().toISOString(),
-    };
+interface Event {
+  id: string;
+  name: string;
+  date: string;
+  capacity: number;
+  status: string;
+  registrationCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
-    const created = await createEventService(payload);
-    return res.status(201).json(created);
-  } catch (err) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
+const events: Event[] = [];
+
+function findEventIndex(id: string) {
+  return events.findIndex((e) => e.id === id);
+}
+
+export const createEvent = (req: Request, res: Response) => {
+  const { name, date, capacity, status, registrationCount } = req.body;
+
+  const now = new Date().toISOString();
+  const newEvent: Event = {
+    id: `evt_${String(events.length + 1).padStart(5, "0")}`,
+    name,
+    date,
+    capacity,
+    status,
+    registrationCount: registrationCount ?? 0,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  events.push(newEvent);
+
+  return res.status(201).json({
+    message: "event created",
+    data: newEvent,
+  });
 };
 
-export const getAllEvents = async (_req: Request, res: Response) => {
-  try {
-    const events = await getAllEventsService();
-    return res.status(200).json(events);
-  } catch (err) {
-    return res.status(500).json({ message: "Internal server error" });
-  }
+export const getAllEvents = (_req: Request, res: Response) => {
+  return res.status(200).json({
+    count: events.length,
+    data: events,
+  });
 };
 
-export const getEventById = async (req: Request, res: Response) => {
-  try {
-    const event = await getEventByIdService(req.params.id);
+export const getEventById = (req: Request, res: Response) => {
+  const event = events.find((e) => e.id === req.params.id);
 
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    return res.status(200).json(event);
-  } catch (err) {
-    return res.status(500).json({ message: "Internal server error" });
+  if (!event) {
+    return res.status(404).json({ message: "Event not found" });
   }
+
+  return res.status(200).json({ data: event });
 };
 
-export const updateEvent = async (req: Request, res: Response) => {
-  try {
-    const updated = await updateEventService(req.params.id, req.body);
+export const updateEvent = (req: Request, res: Response) => {
+  const index = findEventIndex(req.params.id);
 
-    if (!updated) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    return res.status(200).json(updated);
-  } catch (err) {
-    return res.status(500).json({ message: "Internal server error" });
+  if (index === -1) {
+    return res.status(404).json({ message: "Event not found" });
   }
+
+  const existing = events[index];
+  const updated: Event = {
+    ...existing,
+    ...req.body,
+    updatedAt: new Date().toISOString(),
+  };
+
+  events[index] = updated;
+
+  return res.status(200).json({
+    message: "event updated",
+    data: updated,
+  });
 };
 
-export const deleteEvent = async (req: Request, res: Response) => {
-  try {
-    const deleted = await deleteEventService(req.params.id);
+export const deleteEvent = (req: Request, res: Response) => {
+  const index = findEventIndex(req.params.id);
 
-    if (!deleted) {
-      return res.status(404).json({ message: "Event not found" });
-    }
-
-    return res.status(204).send();
-  } catch (err) {
-    return res.status(500).json({ message: "Internal server error" });
+  if (index === -1) {
+    return res.status(404).json({ message: "Event not found" });
   }
+
+  events.splice(index, 1);
+
+  return res.status(200).json({ message: "event deleted" });
 };
