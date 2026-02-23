@@ -1,16 +1,30 @@
 import { db } from "../../../config/firebaseConfig";
 import { Event } from "../models/event.model";
+import { randomUUID } from "crypto";
 
 const collectionName = "events";
+const useMemory = process.env.USE_INMEMORY_DB === "true";
+const memoryStore = new Map<string, Event>();
 
 export const createEventRepo = async (
   data: Omit<Event, "id">
 ): Promise<Event> => {
+  if (useMemory) {
+    const id = randomUUID();
+    const event = { id, ...data };
+    memoryStore.set(id, event);
+    return event;
+  }
+
   const docRef = await db.collection(collectionName).add(data);
   return { id: docRef.id, ...data };
 };
 
 export const getAllEventsRepo = async (): Promise<Event[]> => {
+  if (useMemory) {
+    return Array.from(memoryStore.values());
+  }
+
   const snapshot = await db.collection(collectionName).get();
   return snapshot.docs.map((doc) => ({
     id: doc.id,

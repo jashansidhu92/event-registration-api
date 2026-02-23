@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
-import { Schema } from "joi";
+import { ObjectSchema } from "joi";
 
 export const validateBody =
-  (schema: Schema) =>
+  (schema: ObjectSchema) =>
   (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = schema.validate(req.body, {
       abortEarly: true,
-      stripUnknown: true,
-      convert: true,
+      allowUnknown: false, 
     });
 
     if (error) {
@@ -17,6 +16,5 @@ export const validateBody =
     }
 
     req.body = value;
-
     next();
   };
