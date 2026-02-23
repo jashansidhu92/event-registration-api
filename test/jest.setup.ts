@@ -1,4 +1,4 @@
-jest.mock("../config/firebaseConfig", () => ({
+jest.mock("../src/config/firebaseConfig", () => ({
   db: {
     collection: jest.fn(() => ({
       add: jest.fn(),
@@ -18,8 +18,4 @@ beforeAll(() => {
 
 afterEach(() => {
   jest.clearAllMocks();
-});
-
-afterAll(() => {
-  jest.resetModules();
 });

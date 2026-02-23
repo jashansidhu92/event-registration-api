@@ -5,11 +5,10 @@ export interface Event {
   date: string;
   location: string;
 
-  category: string;              
+  category: "conference" | "workshop" | "meetup" | "seminar" | "general";
   capacity: number;
-  registrationCount: number;    
+  registrationCount: number;
 
   status: "active" | "completed" | "cancelled";
-
   createdAt?: string;
 }

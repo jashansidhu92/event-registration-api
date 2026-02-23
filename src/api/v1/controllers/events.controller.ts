@@ -1,61 +1,74 @@
 import { Request, Response } from "express";
+import {
+  createEventService,
+  getAllEventsService,
+  getEventByIdService,
+  updateEventService,
+  deleteEventService,
+} from "../services/events.service";
 import { Event } from "../models/event.model";
 
-let events: Event[] = [];
-let nextId = 1;
+export const createEvent = async (req: Request, res: Response) => {
+  try {
+    const payload: Omit<Event, "id"> = {
+      ...req.body,
+      createdAt: new Date().toISOString(),
+    };
 
-export const createEvent = (req: Request, res: Response) => {
-  const newEvent: Event = {
-    id: String(nextId++),
-    ...req.body,
-    createdAt: new Date().toISOString(),
-  };
-
-  events.push(newEvent);
-  return res.status(201).json(newEvent);
-};
-
-export const getAllEvents = (_req: Request, res: Response) => {
-  return res.status(200).json(events);
-};
-
-export const getEventById = (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  const event = events.find((e) => e.id === id);
-  if (!event) {
-    return res.status(404).json({ message: "Event not found" });
+    const created = await createEventService(payload);
+    return res.status(201).json(created);
+  } catch (err) {
+    return res.status(500).json({ message: "Internal server error" });
   }
-
-  return res.status(200).json(event);
 };
 
-export const updateEvent = (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  const index = events.findIndex((e) => e.id === id);
-  if (index === -1) {
-    return res.status(404).json({ message: "Event not found" });
+export const getAllEvents = async (_req: Request, res: Response) => {
+  try {
+    const events = await getAllEventsService();
+    return res.status(200).json(events);
+  } catch (err) {
+    return res.status(500).json({ message: "Internal server error" });
   }
-
-  const updated: Event = {
-    ...events[index],
-    ...req.body,
-    id, 
-  };
-
-  events[index] = updated;
-  return res.status(200).json(updated);
 };
 
-export const deleteEvent = (req: Request, res: Response) => {
-  const { id } = req.params;
+export const getEventById = async (req: Request, res: Response) => {
+  try {
+    const event = await getEventByIdService(req.params.id);
 
-  const index = events.findIndex((e) => e.id === id);
-  if (index === -1) {
-    return res.status(404).json({ message: "Event not found" });
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    return res.status(200).json(event);
+  } catch (err) {
+    return res.status(500).json({ message: "Internal server error" });
   }
+};
 
-  events.splice(index, 1);
-  return res.status(204).send();
+export const updateEvent = async (req: Request, res: Response) => {
+  try {
+    const updated = await updateEventService(req.params.id, req.body);
+
+    if (!updated) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    return res.status(200).json(updated);
+  } catch (err) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const deleteEvent = async (req: Request, res: Response) => {
+  try {
+    const deleted = await deleteEventService(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    return res.status(204).send();
+  } catch (err) {
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };

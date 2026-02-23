@@ -1,12 +1,14 @@
-import express, { Request, Response } from "express";
-import v1Router from "./api/v1/routes";
+import express from "express";
+import v1Routes from "./api/v1/routes";
 
-export const app = express();
+const app = express();
 
 app.use(express.json());
 
-app.get("/health", (req: Request, res: Response) => {
+app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.use("/api/v1", v1Router);
+app.use("/api/v1", v1Routes);
+
+export default app;
